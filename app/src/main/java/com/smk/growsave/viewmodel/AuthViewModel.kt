@@ -44,6 +44,8 @@ class AuthViewModel(
                 val request = LoginRequest(email, password)
                 val response = repository.login(request)
                 _loginResult.value = response
+            } catch (e: retrofit2.HttpException) {
+                _errorMessage.value = parseError(e)
             } catch (e: Exception) {
                 _errorMessage.value = "Koneksi gagal: ${e.localizedMessage}"
             } finally {
@@ -53,21 +55,69 @@ class AuthViewModel(
     }
 
     /**
-     * Fungsi register yang dipicu dari RegisterActivity.
-     * Role default = "user".
+     * Fungsi register yang dipicu dari RegisterActivity atau RegisterAdminActivity.
+     * Mendukung data opsional seperti role dan roomCode.
      */
-    fun register(name: String, email: String, password: String, passwordConfirm: String) {
+    fun register(
+        name: String,
+        email: String,
+        password: String,
+        role: String = "user",
+        roomCode: String? = null
+    ) {
         _isLoading.value = true
         viewModelScope.launch {
             try {
-                val request = RegisterRequest(name, email, password, passwordConfirm)
+                val request = RegisterRequest(
+                    name = name,
+                    email = email,
+                    password = password,
+                    role = role,
+                    roomCode = roomCode
+                )
                 val response = repository.register(request)
                 _registerResult.value = response
+            } catch (e: retrofit2.HttpException) {
+                _errorMessage.value = parseError(e)
             } catch (e: Exception) {
                 _errorMessage.value = "Koneksi gagal: ${e.localizedMessage}"
             } finally {
                 _isLoading.value = false
             }
+        }
+    }
+
+    /**
+     * Helper untuk memparsing error response dari Laravel (misal 422 validation error).
+     */
+    private fun parseError(e: retrofit2.HttpException): String {
+        return try {
+            val errorBody = e.response()?.errorBody()?.string()
+            if (!errorBody.isNullOrEmpty()) {
+                val jsonObject = org.json.JSONObject(errorBody)
+                val message = jsonObject.optString("message", "Terjadi kesalahan")
+                val errors = jsonObject.optJSONObject("errors")
+                if (errors != null) {
+                    val keys = errors.keys()
+                    if (keys.hasNext()) {
+                        val firstKey = keys.next()
+                        val firstErrorArray = errors.optJSONArray(firstKey)
+                        if (firstErrorArray != null && firstErrorArray.length() > 0) {
+                            firstErrorArray.getString(0)
+                        } else {
+                            message
+                        }
+                    } else {
+                        message
+                    }
+                } else {
+                    message
+                }
+            } else {
+                "Error: ${e.message()}"
+            }
+        } catch (jsonEx: Exception) {
+            "Error: ${e.localizedMessage}"
         }
     }
 }

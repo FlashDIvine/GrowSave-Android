@@ -15,9 +15,9 @@ data class RegisterRequest(
     @SerializedName("password")
     val password: String,
 
-    @SerializedName("password_confirmation")
-    val passwordConfirmation: String,
-
     @SerializedName("role")
-    val role: String = "user"
+    val role: String = "user",
+
+    @SerializedName("room_code")
+    val roomCode: String? = null
 )

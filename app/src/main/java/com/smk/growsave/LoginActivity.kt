@@ -62,10 +62,25 @@ class LoginActivity : AppCompatActivity() {
             viewModel.login(email, password)
         }
 
-        // Link menuju halaman Register
-        binding.tvGoToRegister.setOnClickListener {
-            val intent = Intent(this, RegisterActivity::class.java)
-            startActivity(intent)
+        // Link menuju halaman Register dengan pilihan Warga atau Admin
+        binding.tvRegister.setOnClickListener {
+            val popup = androidx.appcompat.widget.PopupMenu(this, binding.tvRegister)
+            popup.menu.add("Daftar sebagai Warga")
+            popup.menu.add("Daftar sebagai Admin")
+            popup.setOnMenuItemClickListener { item ->
+                when (item.title) {
+                    "Daftar sebagai Warga" -> {
+                        startActivity(Intent(this, RegisterActivity::class.java))
+                        true
+                    }
+                    "Daftar sebagai Admin" -> {
+                        startActivity(Intent(this, RegisterAdminActivity::class.java))
+                        true
+                    }
+                    else -> false
+                }
+            }
+            popup.show()
         }
 
         // Memulai pengamatan data (Observe LiveData)

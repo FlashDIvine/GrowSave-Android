@@ -14,9 +14,9 @@ import java.util.concurrent.TimeUnit
 object RetrofitClient {
 
     // Base URL dari API yang akan dihubungi. Pastikan selalu diakhiri dengan tanda slash '/'
-    private const val BASE_URL = "http://10.0.2.2:8000/" // Contoh URL Mock API
+    private const val BASE_URL = "http://10.0.2.2:8000/"// Contoh URL Mock API
 
-    /**
+    /**z
      * Logging Interceptor digunakan untuk mencetak log dari request dan response HTTP.
      * Sangat membantu developer untuk melihat data apa saja yang dikirim dan diterima di Logcat.
      */

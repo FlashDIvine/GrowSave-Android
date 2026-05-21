@@ -6,36 +6,42 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.smk.growsave.databinding.ActivityRegisterBinding
+import com.smk.growsave.databinding.ActivityAdminRegisterBinding
 import com.smk.growsave.utils.SessionManager
 import com.smk.growsave.viewmodel.AuthViewModel
 
 /**
- * RegisterActivity menangani form pendaftaran pengguna baru.
- * Setelah registrasi berhasil, token dan sesi langsung disimpan
- * lalu pengguna diarahkan ke MainActivity.
+ * RegisterAdminActivity menangani form pendaftaran pengguna dengan hak akses Admin.
+ * Melakukan validasi kode admin lokal ("ADMIN123") sebelum melanjutkan registrasi ke API.
+ * Setelah registrasi berhasil, sesi disimpan dan pengguna diarahkan ke MainActivity.
  */
-class RegisterActivity : AppCompatActivity() {
+class RegisterAdminActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityRegisterBinding
+    private lateinit var binding: ActivityAdminRegisterBinding
     private lateinit var sessionManager: SessionManager
     private val viewModel: AuthViewModel by viewModels()
+
+    companion object {
+        // Kode admin yang sah untuk verifikasi pendaftaran admin
+        private const val VALID_ADMIN_CODE = "ADMIN123"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding = ActivityRegisterBinding.inflate(layoutInflater)
+        // Setup ViewBinding
+        binding = ActivityAdminRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         sessionManager = SessionManager(this)
 
-        // Tombol Daftar ditekan
+        // Tombol Daftar Admin ditekan
         binding.btnRegister.setOnClickListener {
             val name = binding.etName.text.toString().trim()
             val email = binding.etEmail.text.toString().trim()
-            val roomCode = binding.etRoom.text.toString().trim()
             val password = binding.etPassword.text.toString()
             val confirmPassword = binding.etConfirmPassword.text.toString()
+            val adminCode = binding.etAdminCode.text.toString().trim()
 
             // Validasi input sederhana
             if (name.isEmpty()) {
@@ -46,46 +52,53 @@ class RegisterActivity : AppCompatActivity() {
                 binding.etEmail.error = "Email tidak boleh kosong"
                 return@setOnClickListener
             }
-            if (roomCode.isEmpty()) {
-                binding.etRoom.error = "Room code wajib diisi"
-                return@setOnClickListener
-            }
             if (password.isEmpty()) {
-                binding.etPassword.error = "Password tidak boleh kosong"
+                binding.etPassword.error = "Kata sandi tidak boleh kosong"
                 return@setOnClickListener
             }
             if (confirmPassword.isEmpty()) {
-                binding.etConfirmPassword.error = "Konfirmasi password tidak boleh kosong"
+                binding.etConfirmPassword.error = "Konfirmasi kata sandi tidak boleh kosong"
                 return@setOnClickListener
             }
             if (password != confirmPassword) {
-                binding.etConfirmPassword.error = "Password tidak sama"
+                binding.etConfirmPassword.error = "Kata sandi tidak cocok"
+                return@setOnClickListener
+            }
+            if (adminCode.isEmpty()) {
+                binding.etAdminCode.error = "Kode admin tidak boleh kosong"
                 return@setOnClickListener
             }
 
-            // Memicu proses register pada ViewModel
+            // Validasi Kode Admin
+            if (adminCode != VALID_ADMIN_CODE) {
+                binding.etAdminCode.error = "Kode admin salah"
+                Toast.makeText(this, "Kode admin salah", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // Memicu proses register pada ViewModel dengan role "admin"
             viewModel.register(
                 name = name,
                 email = email,
                 password = password,
-                role = "user",
-                roomCode = roomCode
+                role = "admin",
+                roomCode = null
             )
         }
 
-        // Link ke halaman Login
+        // Kembali ke LoginActivity via text link
         binding.tvLogin.setOnClickListener {
-            finish() // Kembali ke LoginActivity
+            finish()
         }
 
-        // Tombol Close
+        // Kembali ke LoginActivity via tombol Close
         binding.btnClose.setOnClickListener {
             finish()
         }
 
-        // Switch Tab ke pendaftaran Admin (RegisterAdminActivity)
-        binding.tabAdmin.setOnClickListener {
-            val intent = Intent(this, RegisterAdminActivity::class.java)
+        // Switch Tab ke pendaftaran Warga (RegisterActivity)
+        binding.tabWarga.setOnClickListener {
+            val intent = Intent(this, RegisterActivity::class.java)
             startActivity(intent)
             finish()
         }
@@ -94,7 +107,7 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun setupObservers() {
-        // 1. Observe Loading
+        // 1. Observe Loading State
         viewModel.isLoading.observe(this) { isLoading ->
             if (isLoading) {
                 binding.progressBar.visibility = View.VISIBLE
@@ -105,7 +118,7 @@ class RegisterActivity : AppCompatActivity() {
             }
         }
 
-        // 2. Observe Hasil Register (sukses / gagal)
+        // 2. Observe Hasil Register
         viewModel.registerResult.observe(this) { response ->
             if (response.success) {
                 val user = response.data?.user
@@ -116,7 +129,7 @@ class RegisterActivity : AppCompatActivity() {
                     sessionManager.saveSession(token, user.name, user.email, user.role.name)
                 }
 
-                Toast.makeText(this, "Registrasi berhasil! Selamat datang ${user?.name}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Registrasi Admin berhasil! Selamat datang ${user?.name}", Toast.LENGTH_SHORT).show()
 
                 // Langsung pindah ke MainActivity
                 val intent = Intent(this, MainActivity::class.java)
