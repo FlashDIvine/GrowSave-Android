@@ -6,11 +6,21 @@ import com.smk.growsave.model.PaymentResponse
 import com.smk.growsave.model.auth.LoginRequest
 import com.smk.growsave.model.auth.LoginResponse
 import com.smk.growsave.model.auth.RegisterRequest
+import com.smk.growsave.model.Bill
+import com.smk.growsave.model.Transaction
+import com.smk.growsave.model.Announcement
+import com.smk.growsave.model.RoomRequest
+import com.smk.growsave.model.CreateBillRequest
+import com.smk.growsave.model.CreateTransactionRequest
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Multipart
+import retrofit2.http.Part
 
 /**
  * Data class untuk merepresentasikan data Post dari API JsonPlaceholder.
@@ -96,4 +106,49 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Body request: PaymentRequest
     ): BaseResponse<PaymentResponse>
+
+    @POST("api/bills")
+    suspend fun createBill(
+        @Header("Authorization") token: String,
+        @Body request: CreateBillRequest
+    ): BaseResponse<Bill>
+
+    @POST("api/bills/{id}/complete")
+    suspend fun completeBill(
+        @Header("Authorization") token: String,
+        @Path("id") id: Int
+    ): BaseResponse<Bill>
+
+    @POST("api/transactions")
+    suspend fun createTransaction(
+        @Header("Authorization") token: String,
+        @Body request: CreateTransactionRequest
+    ): BaseResponse<Transaction>
+
+    @Multipart
+    @POST("api/announcements")
+    suspend fun createAnnouncement(
+        @Header("Authorization") token: String,
+        @Part("title") title: RequestBody,
+        @Part("content") content: RequestBody,
+        @Part("category") category: RequestBody?,
+        @Part image: MultipartBody.Part?
+    ): BaseResponse<Announcement>
+
+    @GET("api/room/requests")
+    suspend fun getRoomRequests(
+        @Header("Authorization") token: String
+    ): BaseResponse<List<RoomRequest>>
+
+    @POST("api/room/approve/{id}")
+    suspend fun approveRoom(
+        @Header("Authorization") token: String,
+        @Path("id") id: Int
+    ): BaseResponse<Unit>
+
+    @POST("api/room/reject/{id}")
+    suspend fun rejectRoom(
+        @Header("Authorization") token: String,
+        @Path("id") id: Int
+    ): BaseResponse<Unit>
 }

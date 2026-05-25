@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_admin_home"
+        android:icon="@drawable/ic_home"
+        android:title="Home" />
+
+    <item
+        android:id="@+id/menu_admin_residents"
+        android:icon="@drawable/ic_people"
+        android:title="Residents" />
+
+    <item
+        android:id="@+id/menu_admin_finance"
+        android:icon="@drawable/ic_finance"
+        android:title="Finance" />
+
+    <item
+        android:id="@+id/menu_admin_info"
+        android:icon="@drawable/ic_info_bottom"
+        android:title="Info" />
+</menu>

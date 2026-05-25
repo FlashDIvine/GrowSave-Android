@@ -40,18 +40,22 @@ class AnnouncementAdapter(
     class AnnouncementViewHolder(
         private val binding: ItemAnnouncementBinding
     ) : RecyclerView.ViewHolder(binding.root) {
-
         fun bind(announcement: Announcement) {
             binding.tvTitle.text = announcement.title
             binding.tvContent.text = announcement.content
             binding.tvDate.text = announcement.createdAt
 
-            // Memuat gambar dari URL menggunakan Glide secara asinkronus
-            Glide.with(binding.root.context)
-                .load(announcement.imageUrl)
-                .placeholder(android.R.drawable.ic_menu_gallery) // Ikon galeri bawaan Android sebagai placeholder
-                .error(android.R.drawable.ic_menu_report_image) // Ikon error bawaan jika gagal memuat gambar
-                .into(binding.ivAnnouncement)
+            if (!announcement.imageUrl.isNullOrEmpty()) {
+                binding.ivAnnouncement.visibility = android.view.View.VISIBLE
+                // Memuat gambar dari URL menggunakan Glide secara asinkronus
+                Glide.with(binding.root.context)
+                    .load(announcement.imageUrl)
+                    .placeholder(android.R.drawable.ic_menu_gallery) // Ikon galeri bawaan Android sebagai placeholder
+                    .error(android.R.drawable.ic_menu_report_image) // Ikon error bawaan jika gagal memuat gambar
+                    .into(binding.ivAnnouncement)
+            } else {
+                binding.ivAnnouncement.visibility = android.view.View.GONE
+            }
         }
     }
 }

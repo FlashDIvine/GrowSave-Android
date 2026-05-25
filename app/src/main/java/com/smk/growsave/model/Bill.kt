@@ -12,6 +12,9 @@ data class Bill(
     @SerializedName("title")
     val title: String,
 
+    @SerializedName("description")
+    val description: String?,
+
     @SerializedName("amount")
     val amount: Long,
 
@@ -19,5 +22,20 @@ data class Bill(
     val dueDate: String,
 
     @SerializedName("status")
-    val status: String // "paid" atau "unpaid"
+    val status: String, // "active" atau "closed"
+
+    @SerializedName("target_amount")
+    val targetAmount: Long,
+
+    @SerializedName("collected_amount")
+    val collectedAmount: Long,
+
+    @SerializedName("required_amount")
+    val requiredAmount: Long,
+
+    @SerializedName("is_completed")
+    val isCompleted: Boolean,
+
+    @SerializedName("user_payment_status")
+    val userPaymentStatus: String // "paid", "pending", "unpaid"
 )

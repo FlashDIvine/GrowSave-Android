@@ -1,8 +1,8 @@
 package com.smk.growsave.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.smk.growsave.databinding.ItemBillBinding
 import com.smk.growsave.model.Bill
@@ -14,6 +14,8 @@ import java.util.Locale
  */
 class BillAdapter(
     private var bills: List<Bill> = emptyList(),
+    private val isAdmin: Boolean = false,
+    private val onCompleteClick: ((Bill) -> Unit)? = null,
     private val onBillClick: (Bill) -> Unit
 ) : RecyclerView.Adapter<BillAdapter.BillViewHolder>() {
 
@@ -35,7 +37,7 @@ class BillAdapter(
     }
 
     override fun onBindViewHolder(holder: BillViewHolder, position: Int) {
-        holder.bind(bills[position], onBillClick)
+        holder.bind(bills[position], isAdmin, onCompleteClick, onBillClick)
     }
 
     override fun getItemCount(): Int = bills.size
@@ -44,23 +46,80 @@ class BillAdapter(
         private val binding: ItemBillBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(bill: Bill, onBillClick: (Bill) -> Unit) {
+        fun bind(
+            bill: Bill,
+            isAdmin: Boolean,
+            onCompleteClick: ((Bill) -> Unit)?,
+            onBillClick: (Bill) -> Unit
+        ) {
             binding.tvTitle.text = bill.title
             binding.tvDueDate.text = "Jatuh tempo: ${bill.dueDate}"
-            binding.tvAmount.text = formatRupiah(bill.amount)
+            binding.tvAmount.text = formatRupiah(bill.requiredAmount)
 
-            val context = binding.root.context
-
-            // Warna status berbeda (paid = hijau, unpaid = merah)
-            if (bill.status.equals("paid", ignoreCase = true)) {
-                binding.tvStatus.text = "PAID"
-                binding.tvStatus.setTextColor(ContextCompat.getColor(context, android.R.color.holo_green_dark))
+            // Deskripsi Iuran
+            if (!bill.description.isNullOrEmpty()) {
+                binding.tvDescription.text = bill.description
+                binding.tvDescription.visibility = View.VISIBLE
             } else {
-                binding.tvStatus.text = "UNPAID"
-                binding.tvStatus.setTextColor(ContextCompat.getColor(context, android.R.color.holo_red_dark))
+                binding.tvDescription.visibility = View.GONE
             }
 
-            // Aksi klik item tagihan
+            // Progres Crowdfunding
+            val percent = if (bill.targetAmount > 0) {
+                ((bill.collectedAmount.toDouble() / bill.targetAmount.toDouble()) * 100).toInt()
+            } else {
+                0
+            }
+            binding.tvProgressPercent.text = "$percent%"
+            binding.pbTargetProgress.max = 100
+            binding.pbTargetProgress.progress = if (percent > 100) 100 else percent
+            binding.tvProgressText.text = "${formatRupiah(bill.collectedAmount)} / ${formatRupiah(bill.targetAmount)}"
+
+            // Penentuan Warna Status & Tombol Bayar berdasarkan userPaymentStatus personal
+            when (bill.userPaymentStatus.lowercase()) {
+                "paid" -> {
+                    binding.tvStatus.text = "LUNAS"
+                    binding.tvStatus.setBackgroundResource(com.smk.growsave.R.drawable.bg_badge_success)
+                    binding.tvStatus.setTextColor(android.graphics.Color.parseColor("#0D7B43"))
+                    binding.btnPay.visibility = View.GONE
+                }
+                "pending" -> {
+                    binding.tvStatus.text = "PENDING"
+                    binding.tvStatus.setBackgroundResource(com.smk.growsave.R.drawable.bg_badge_warning)
+                    binding.tvStatus.setTextColor(android.graphics.Color.parseColor("#92400E"))
+                    binding.btnPay.visibility = View.VISIBLE
+                    binding.btnPay.text = "Selesaikan"
+                }
+                else -> { // unpaid
+                    binding.tvStatus.setBackgroundResource(com.smk.growsave.R.drawable.bg_badge_danger)
+                    binding.tvStatus.setTextColor(android.graphics.Color.parseColor("#C81E1E"))
+                    
+                    if (bill.isCompleted || bill.status.equals("closed", ignoreCase = true)) {
+                        binding.tvStatus.text = "DITUTUP"
+                        binding.btnPay.visibility = View.GONE
+                    } else {
+                        binding.tvStatus.text = "BELUM BAYAR"
+                        binding.btnPay.visibility = View.VISIBLE
+                        binding.btnPay.text = "Bayar"
+                    }
+                }
+            }
+
+            // Tombol Tutup Iuran (Selesaikan) Khusus Admin jika tagihan masih aktif
+            val isBillActive = !bill.isCompleted && !bill.status.equals("closed", ignoreCase = true)
+            if (isAdmin && isBillActive) {
+                binding.btnComplete.visibility = View.VISIBLE
+                binding.btnComplete.setOnClickListener {
+                    onCompleteClick?.invoke(bill)
+                }
+            } else {
+                binding.btnComplete.visibility = View.GONE
+            }
+
+            // Aksi klik tombol bayar / item
+            binding.btnPay.setOnClickListener {
+                onBillClick(bill)
+            }
             binding.root.setOnClickListener {
                 onBillClick(bill)
             }

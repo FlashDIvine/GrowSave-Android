@@ -76,7 +76,9 @@ class BillsFragment : Fragment() {
      * Menangani klik item tagihan. Hanya memproses tagihan yang belum dibayar (unpaid).
      */
     private fun handleBillClick(bill: Bill) {
-        if (bill.status.equals("unpaid", ignoreCase = true)) {
+        if (bill.userPaymentStatus.equals("paid", ignoreCase = true)) {
+            Toast.makeText(requireContext(), "Tagihan ini sudah lunas.", Toast.LENGTH_SHORT).show()
+        } else {
             val token = sessionManager.getToken()
             if (token != null) {
                 selectedBill = bill
@@ -84,8 +86,6 @@ class BillsFragment : Fragment() {
             } else {
                 Toast.makeText(requireContext(), "Sesi berakhir. Silakan login kembali.", Toast.LENGTH_SHORT).show()
             }
-        } else {
-            Toast.makeText(requireContext(), "Tagihan ini sudah lunas.", Toast.LENGTH_SHORT).show()
         }
     }
 

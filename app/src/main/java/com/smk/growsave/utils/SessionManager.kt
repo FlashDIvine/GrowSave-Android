@@ -56,6 +56,20 @@ class SessionManager(context: Context) {
     }
 
     /**
+     * Mengambil role pengguna yang sedang masuk.
+     */
+    fun getUserRole(): String? {
+        return prefs.getString(KEY_USER_ROLE, null)
+    }
+
+    /**
+     * Mengambil email pengguna yang sedang masuk.
+     */
+    fun getUserEmail(): String? {
+        return prefs.getString(KEY_USER_EMAIL, null)
+    }
+
+    /**
      * Menghapus sesi data saat user melakukan Logout.
      */
     fun clearSession() {

@@ -30,12 +30,23 @@
             android:exported="false" />
         <activity
             android:name=".PaymentActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:launchMode="singleTop"
             android:exported="false" />
         <activity
             android:name=".RegisterActivity"
             android:exported="false" />
         <activity
             android:name=".RegisterAdminActivity"
+            android:exported="false" />
+        <activity
+            android:name=".CreateBillActivity"
+            android:exported="false" />
+        <activity
+            android:name=".CreateTransactionActivity"
+            android:exported="false" />
+        <activity
+            android:name=".CreateAnnouncementActivity"
             android:exported="false" />
     </application>
 

@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.smk.growsave.model.CreateTransactionRequest
 import com.smk.growsave.model.Transaction
 import com.smk.growsave.repository.TransactionRepository
 import kotlinx.coroutines.launch
@@ -24,6 +25,9 @@ class TransactionViewModel(
     private val _errorMessage = MutableLiveData<String>()
     val errorMessage: LiveData<String> get() = _errorMessage
 
+    private val _createTransactionSuccess = MutableLiveData<Boolean>()
+    val createTransactionSuccess: LiveData<Boolean> get() = _createTransactionSuccess
+
     /**
      * Meminta daftar transaksi dari repositori menggunakan token JWT.
      */
@@ -43,5 +47,31 @@ class TransactionViewModel(
                 _isLoading.value = false
             }
         }
+    }
+
+    /**
+     * Membuat transaksi baru.
+     */
+    fun createTransaction(token: String, title: String, type: String, amount: Long) {
+        _isLoading.value = true
+        viewModelScope.launch {
+            try {
+                val request = CreateTransactionRequest(title, type, amount)
+                val response = repository.createTransaction(token, request)
+                if (response.success) {
+                    _createTransactionSuccess.value = true
+                } else {
+                    _errorMessage.value = response.message
+                }
+            } catch (e: Exception) {
+                _errorMessage.value = "Koneksi gagal: ${e.localizedMessage}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun resetCreateTransactionSuccess() {
+        _createTransactionSuccess.value = false
     }
 }

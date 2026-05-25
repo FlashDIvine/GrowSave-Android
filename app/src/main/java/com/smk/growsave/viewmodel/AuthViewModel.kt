@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.smk.growsave.model.BaseResponse
+import com.smk.growsave.model.RoomRequest
 import com.smk.growsave.model.auth.LoginRequest
 import com.smk.growsave.model.auth.LoginResponse
 import com.smk.growsave.model.auth.RegisterRequest
@@ -33,6 +34,13 @@ class AuthViewModel(
 
     private val _errorMessage = MutableLiveData<String>()
     val errorMessage: LiveData<String> get() = _errorMessage
+
+    // === ROOM REQUESTS ===
+    private val _roomRequests = MutableLiveData<List<RoomRequest>>()
+    val roomRequests: LiveData<List<RoomRequest>> get() = _roomRequests
+
+    private val _roomActionSuccess = MutableLiveData<Boolean>()
+    val roomActionSuccess: LiveData<Boolean> get() = _roomActionSuccess
 
     /**
      * Fungsi login yang dipicu dari LoginActivity.
@@ -119,6 +127,73 @@ class AuthViewModel(
         } catch (jsonEx: Exception) {
             "Error: ${e.localizedMessage}"
         }
+    }
+
+    /**
+     * Mengambil daftar permohonan room pending.
+     */
+    fun fetchRoomRequests(token: String) {
+        _isLoading.value = true
+        viewModelScope.launch {
+            try {
+                val response = repository.getRoomRequests(token)
+                if (response.success) {
+                    _roomRequests.value = response.data ?: emptyList()
+                } else {
+                    _errorMessage.value = response.message
+                }
+            } catch (e: Exception) {
+                _errorMessage.value = "Koneksi gagal: ${e.localizedMessage}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    /**
+     * Menyetujui permohonan room.
+     */
+    fun approveRoom(token: String, id: Int) {
+        _isLoading.value = true
+        viewModelScope.launch {
+            try {
+                val response = repository.approveRoom(token, id)
+                if (response.success) {
+                    _roomActionSuccess.value = true
+                } else {
+                    _errorMessage.value = response.message
+                }
+            } catch (e: Exception) {
+                _errorMessage.value = "Koneksi gagal: ${e.localizedMessage}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    /**
+     * Menolak permohonan room.
+     */
+    fun rejectRoom(token: String, id: Int) {
+        _isLoading.value = true
+        viewModelScope.launch {
+            try {
+                val response = repository.rejectRoom(token, id)
+                if (response.success) {
+                    _roomActionSuccess.value = true
+                } else {
+                    _errorMessage.value = response.message
+                }
+            } catch (e: Exception) {
+                _errorMessage.value = "Koneksi gagal: ${e.localizedMessage}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun resetRoomActionSuccess() {
+        _roomActionSuccess.value = false
     }
 }
 

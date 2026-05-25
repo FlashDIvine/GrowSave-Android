@@ -7,6 +7,8 @@ import androidx.lifecycle.viewModelScope
 import com.smk.growsave.model.Announcement
 import com.smk.growsave.repository.AnnouncementRepository
 import kotlinx.coroutines.launch
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 
 /**
  * AnnouncementViewModel mengelola UI State data pengumuman untuk AnnouncementFragment.
@@ -23,6 +25,9 @@ class AnnouncementViewModel(
 
     private val _errorMessage = MutableLiveData<String>()
     val errorMessage: LiveData<String> get() = _errorMessage
+
+    private val _createAnnouncementSuccess = MutableLiveData<Boolean>()
+    val createAnnouncementSuccess: LiveData<Boolean> get() = _createAnnouncementSuccess
 
     /**
      * Mengambil data pengumuman dari repository.
@@ -43,5 +48,36 @@ class AnnouncementViewModel(
                 _isLoading.value = false
             }
         }
+    }
+
+    /**
+     * Membuat pengumuman baru dengan multipart/form-data.
+     */
+    fun createAnnouncement(
+        token: String,
+        title: RequestBody,
+        content: RequestBody,
+        category: RequestBody?,
+        image: MultipartBody.Part?
+    ) {
+        _isLoading.value = true
+        viewModelScope.launch {
+            try {
+                val response = repository.createAnnouncement(token, title, content, category, image)
+                if (response.success) {
+                    _createAnnouncementSuccess.value = true
+                } else {
+                    _errorMessage.value = response.message
+                }
+            } catch (e: Exception) {
+                _errorMessage.value = "Koneksi gagal: ${e.localizedMessage}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun resetCreateAnnouncementSuccess() {
+        _createAnnouncementSuccess.value = false
     }
 }

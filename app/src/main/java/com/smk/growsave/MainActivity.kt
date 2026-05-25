@@ -9,6 +9,10 @@ import com.smk.growsave.fragment.AnnouncementFragment
 import com.smk.growsave.fragment.HomeFragment
 import com.smk.growsave.fragment.ProfileFragment
 import com.smk.growsave.fragment.TransactionFragment
+import com.smk.growsave.fragment.AdminHomeFragment
+import com.smk.growsave.fragment.ResidentsFragment
+import com.smk.growsave.fragment.FinanceFragment
+import com.smk.growsave.fragment.InfoFragment
 import com.smk.growsave.utils.SessionManager
 
 class MainActivity : AppCompatActivity() {
@@ -32,23 +36,57 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Set Fragment default saat pertama kali dibuka (HomeFragment)
-        if (savedInstanceState == null) {
-            loadFragment(HomeFragment())
-        }
+        val role = sessionManager.getUserRole()
+        val isAdmin = role?.lowercase() == "admin"
 
-        // Setup Listener untuk Bottom Navigation View
-        binding.bottomNavigation.setOnItemSelectedListener { item ->
-            val fragment: Fragment = when (item.itemId) {
-                R.id.menu_home -> HomeFragment()
-                R.id.menu_transaction -> TransactionFragment()
-                R.id.menu_announcement -> AnnouncementFragment()
-                R.id.menu_profile -> ProfileFragment()
-                else -> HomeFragment()
+        if (isAdmin) {
+            // Swap ke Bottom Navigation Menu khusus Admin
+            binding.bottomNavigation.menu.clear()
+            binding.bottomNavigation.inflateMenu(R.menu.bottom_menu_admin)
+
+            // Set Fragment default saat pertama kali dibuka (AdminHomeFragment)
+            if (savedInstanceState == null) {
+                loadFragment(AdminHomeFragment())
             }
-            loadFragment(fragment)
-            true
+
+            // Setup Listener untuk Admin Bottom Navigation View
+            binding.bottomNavigation.setOnItemSelectedListener { item ->
+                val fragment: Fragment = when (item.itemId) {
+                    R.id.menu_admin_home -> AdminHomeFragment()
+                    R.id.menu_admin_residents -> ResidentsFragment()
+                    R.id.menu_admin_finance -> FinanceFragment()
+                    R.id.menu_admin_info -> InfoFragment()
+                    else -> AdminHomeFragment()
+                }
+                loadFragment(fragment)
+                true
+            }
+        } else {
+            // Set Fragment default saat pertama kali dibuka (HomeFragment)
+            if (savedInstanceState == null) {
+                loadFragment(HomeFragment())
+            }
+
+            // Setup Listener untuk User Bottom Navigation View
+            binding.bottomNavigation.setOnItemSelectedListener { item ->
+                val fragment: Fragment = when (item.itemId) {
+                    R.id.menu_home -> HomeFragment()
+                    R.id.menu_transaction -> FinanceFragment()
+                    R.id.menu_announcement -> InfoFragment()
+                    R.id.menu_profile -> ProfileFragment()
+                    else -> HomeFragment()
+                }
+                loadFragment(fragment)
+                true
+            }
         }
+    }
+
+    /**
+     * Memilih tab bottom navigation secara programmatis.
+     */
+    fun selectTab(itemId: Int) {
+        binding.bottomNavigation.selectedItemId = itemId
     }
 
     /**
