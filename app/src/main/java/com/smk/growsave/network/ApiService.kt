@@ -10,6 +10,7 @@ import com.smk.growsave.model.Bill
 import com.smk.growsave.model.Transaction
 import com.smk.growsave.model.Announcement
 import com.smk.growsave.model.RoomRequest
+import com.smk.growsave.model.RoomMember
 import com.smk.growsave.model.CreateBillRequest
 import com.smk.growsave.model.CreateTransactionRequest
 import okhttp3.MultipartBody
@@ -139,6 +140,11 @@ interface ApiService {
     suspend fun getRoomRequests(
         @Header("Authorization") token: String
     ): BaseResponse<List<RoomRequest>>
+
+    @GET("api/room/residents")
+    suspend fun getRoomResidents(
+        @Header("Authorization") token: String
+    ): BaseResponse<List<RoomMember>>
 
     @POST("api/room/approve/{id}")
     suspend fun approveRoom(

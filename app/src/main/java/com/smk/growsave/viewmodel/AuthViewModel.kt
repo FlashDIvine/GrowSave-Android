@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.smk.growsave.model.BaseResponse
 import com.smk.growsave.model.RoomRequest
+import com.smk.growsave.model.RoomMember
 import com.smk.growsave.model.auth.LoginRequest
 import com.smk.growsave.model.auth.LoginResponse
 import com.smk.growsave.model.auth.RegisterRequest
@@ -38,6 +39,10 @@ class AuthViewModel(
     // === ROOM REQUESTS ===
     private val _roomRequests = MutableLiveData<List<RoomRequest>>()
     val roomRequests: LiveData<List<RoomRequest>> get() = _roomRequests
+
+    // === ROOM RESIDENTS ===
+    private val _roomResidents = MutableLiveData<List<RoomMember>>()
+    val roomResidents: LiveData<List<RoomMember>> get() = _roomResidents
 
     private val _roomActionSuccess = MutableLiveData<Boolean>()
     val roomActionSuccess: LiveData<Boolean> get() = _roomActionSuccess
@@ -139,6 +144,27 @@ class AuthViewModel(
                 val response = repository.getRoomRequests(token)
                 if (response.success) {
                     _roomRequests.value = response.data ?: emptyList()
+                } else {
+                    _errorMessage.value = response.message
+                }
+            } catch (e: Exception) {
+                _errorMessage.value = "Koneksi gagal: ${e.localizedMessage}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    /**
+     * Mengambil daftar penghuni aktif room (approved).
+     */
+    fun fetchRoomResidents(token: String) {
+        _isLoading.value = true
+        viewModelScope.launch {
+            try {
+                val response = repository.getRoomResidents(token)
+                if (response.success) {
+                    _roomResidents.value = response.data ?: emptyList()
                 } else {
                     _errorMessage.value = response.message
                 }

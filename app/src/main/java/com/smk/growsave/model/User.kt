@@ -16,6 +16,12 @@ data class User(
     @SerializedName("email")
     val email: String,
 
+    @SerializedName("house_block")
+    val houseBlock: String? = null,
+
+    @SerializedName("house_number")
+    val houseNumber: String? = null,
+
     // Menggunakan Enum UserRole agar pengecekan role di aplikasi bersifat type-safe
     @SerializedName("role")
     val role: UserRole

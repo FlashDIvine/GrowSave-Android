@@ -1,6 +1,8 @@
 package com.smk.growsave.fragment
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,7 +10,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.smk.growsave.adapter.RoomRequestAdapter
+import com.smk.growsave.adapter.ResidentAdapter
 import com.smk.growsave.databinding.FragmentResidentsBinding
 import com.smk.growsave.utils.SessionManager
 import com.smk.growsave.viewmodel.AuthViewModel
@@ -20,7 +22,7 @@ class ResidentsFragment : Fragment() {
 
     private lateinit var authViewModel: AuthViewModel
     private lateinit var sessionManager: SessionManager
-    private lateinit var adapter: RoomRequestAdapter
+    private lateinit var adapter: ResidentAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,38 +40,25 @@ class ResidentsFragment : Fragment() {
 
         setupRecyclerView()
         setupObservers()
-    }
+        setupSearch()
 
-    override fun onResume() {
-        super.onResume()
+        // Load data sekali saat fragment dibuat (onViewCreated) untuk menghindari request berulang
         loadData()
     }
 
     private fun loadData() {
         val token = sessionManager.getToken()
         if (token != null) {
-            authViewModel.fetchRoomRequests(token)
+            authViewModel.fetchRoomResidents(token)
         } else {
             Toast.makeText(requireContext(), "Sesi berakhir. Silakan login kembali.", Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun setupRecyclerView() {
-        val token = sessionManager.getToken()
-        adapter = RoomRequestAdapter(
-            onApproveClicked = { request ->
-                if (token != null) {
-                    authViewModel.approveRoom(token, request.id)
-                }
-            },
-            onRejectClicked = { request ->
-                if (token != null) {
-                    authViewModel.rejectRoom(token, request.id)
-                }
-            }
-        )
-        binding.rvRoomRequests.layoutManager = LinearLayoutManager(requireContext())
-        binding.rvRoomRequests.adapter = adapter
+        adapter = ResidentAdapter()
+        binding.rvResidents.layoutManager = LinearLayoutManager(requireContext())
+        binding.rvResidents.adapter = adapter
     }
 
     private fun setupObservers() {
@@ -77,22 +66,15 @@ class ResidentsFragment : Fragment() {
             binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         }
 
-        authViewModel.roomRequests.observe(viewLifecycleOwner) { list ->
+        authViewModel.roomResidents.observe(viewLifecycleOwner) { list ->
             adapter.submitList(list)
+            updateSummary(list.size)
             if (list.isEmpty()) {
                 binding.tvNoData.visibility = View.VISIBLE
-                binding.rvRoomRequests.visibility = View.GONE
+                binding.rvResidents.visibility = View.GONE
             } else {
                 binding.tvNoData.visibility = View.GONE
-                binding.rvRoomRequests.visibility = View.VISIBLE
-            }
-        }
-
-        authViewModel.roomActionSuccess.observe(viewLifecycleOwner) { success ->
-            if (success) {
-                Toast.makeText(requireContext(), "Aksi berhasil diproses!", Toast.LENGTH_SHORT).show()
-                authViewModel.resetRoomActionSuccess()
-                loadData() // Refresh list
+                binding.rvResidents.visibility = View.VISIBLE
             }
         }
 
@@ -101,6 +83,24 @@ class ResidentsFragment : Fragment() {
                 Toast.makeText(requireContext(), errorMsg, Toast.LENGTH_LONG).show()
             }
         }
+    }
+
+    private fun setupSearch() {
+        binding.etSearch.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                adapter.filter(s.toString())
+                // Update summary based on filtered result size
+                updateSummary(adapter.getFilteredSize())
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
+    }
+
+    private fun updateSummary(count: Int) {
+        binding.tvSummaryText.text = "Total penghuni aktif di room ini: $count warga."
     }
 
     override fun onDestroyView() {

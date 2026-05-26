@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import com.smk.growsave.databinding.ActivityMainBinding
 import com.smk.growsave.fragment.AnnouncementFragment
 import com.smk.growsave.fragment.HomeFragment
+import com.smk.growsave.fragment.UserHomeFragment
 import com.smk.growsave.fragment.ProfileFragment
 import com.smk.growsave.fragment.TransactionFragment
 import com.smk.growsave.fragment.AdminHomeFragment
@@ -62,19 +63,19 @@ class MainActivity : AppCompatActivity() {
                 true
             }
         } else {
-            // Set Fragment default saat pertama kali dibuka (HomeFragment)
+            // Set Fragment default saat pertama kali dibuka (UserHomeFragment)
             if (savedInstanceState == null) {
-                loadFragment(HomeFragment())
+                loadFragment(UserHomeFragment())
             }
 
             // Setup Listener untuk User Bottom Navigation View
             binding.bottomNavigation.setOnItemSelectedListener { item ->
                 val fragment: Fragment = when (item.itemId) {
-                    R.id.menu_home -> HomeFragment()
+                    R.id.menu_home -> UserHomeFragment()
                     R.id.menu_transaction -> FinanceFragment()
                     R.id.menu_announcement -> InfoFragment()
                     R.id.menu_profile -> ProfileFragment()
-                    else -> HomeFragment()
+                    else -> UserHomeFragment()
                 }
                 loadFragment(fragment)
                 true

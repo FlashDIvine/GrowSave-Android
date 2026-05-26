@@ -2,6 +2,7 @@ package com.smk.growsave.repository
 
 import com.smk.growsave.model.BaseResponse
 import com.smk.growsave.model.RoomRequest
+import com.smk.growsave.model.RoomMember
 import com.smk.growsave.model.auth.LoginRequest
 import com.smk.growsave.model.auth.LoginResponse
 import com.smk.growsave.model.auth.RegisterRequest
@@ -34,6 +35,11 @@ class AuthRepository(
     suspend fun getRoomRequests(token: String): BaseResponse<List<RoomRequest>> {
         val authHeader = "Bearer $token"
         return apiService.getRoomRequests(authHeader)
+    }
+
+    suspend fun getRoomResidents(token: String): BaseResponse<List<RoomMember>> {
+        val authHeader = "Bearer $token"
+        return apiService.getRoomResidents(authHeader)
     }
 
     suspend fun approveRoom(token: String, id: Int): BaseResponse<Unit> {

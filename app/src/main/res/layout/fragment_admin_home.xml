@@ -338,13 +338,14 @@
                     android:gravity="center"
                     android:orientation="vertical"
                     android:padding="20dp">
+
                     <ImageView
                         android:layout_width="44dp"
                         android:layout_height="44dp"
-                        android:background="@drawable/bg_summary_blue"
-                        android:src="@drawable/ic_receipt"
+                        android:background="@drawable/bg_circle_blue"
                         android:padding="10dp"
-                        app:tint="#3730A3" />
+                        android:src="@drawable/ic_receipt"
+                        app:tint="#030845" />
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -376,13 +377,14 @@
                     android:gravity="center"
                     android:orientation="vertical"
                     android:padding="20dp">
+
                     <ImageView
                         android:layout_width="44dp"
                         android:layout_height="44dp"
-                        android:background="@drawable/bg_summary_blue"
-                        android:src="@drawable/ic_transfer"
+                        android:background="@drawable/bg_circle_blue"
                         android:padding="10dp"
-                        app:tint="#3730A3" />
+                        android:src="@drawable/ic_transfer"
+                        app:tint="#030845" />
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -414,13 +416,14 @@
                     android:gravity="center"
                     android:orientation="vertical"
                     android:padding="20dp">
+
                     <ImageView
                         android:layout_width="44dp"
                         android:layout_height="44dp"
-                        android:background="@drawable/bg_summary_blue"
-                        android:src="@drawable/ic_announcement"
+                        android:background="@drawable/bg_circle_blue"
                         android:padding="10dp"
-                        app:tint="#3730A3" />
+                        android:src="@drawable/ic_announcement"
+                        app:tint="#030845" />
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -452,13 +455,14 @@
                     android:gravity="center"
                     android:orientation="vertical"
                     android:padding="20dp">
+
                     <ImageView
                         android:layout_width="44dp"
                         android:layout_height="44dp"
-                        android:background="@drawable/bg_summary_blue"
-                        android:src="@drawable/ic_approval"
+                        android:background="@drawable/bg_circle_blue"
                         android:padding="10dp"
-                        app:tint="#3730A3" />
+                        android:src="@drawable/ic_approval"
+                        app:tint="#030845" />
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
