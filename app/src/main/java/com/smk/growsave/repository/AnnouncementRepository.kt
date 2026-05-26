@@ -17,8 +17,7 @@ class AnnouncementRepository(
      * Mengambil daftar pengumuman dari server menggunakan token JWT.
      */
     suspend fun getAnnouncements(token: String): BaseResponse<List<Announcement>> {
-        val authHeader = "Bearer $token"
-        return apiService.getAnnouncements(authHeader)
+        return apiService.getAnnouncements(token)
     }
 
     /**
@@ -31,7 +30,13 @@ class AnnouncementRepository(
         category: RequestBody?,
         image: MultipartBody.Part?
     ): BaseResponse<Announcement> {
-        val authHeader = "Bearer $token"
-        return apiService.createAnnouncement(authHeader, title, content, category, image)
+        return apiService.createAnnouncement(token, title, content, category, image)
+    }
+
+    /**
+     * Menghapus pengumuman dari server menggunakan token JWT.
+     */
+    suspend fun deleteAnnouncement(token: String, id: Int): BaseResponse<Unit> {
+        return apiService.deleteAnnouncement(token, id)
     }
 }

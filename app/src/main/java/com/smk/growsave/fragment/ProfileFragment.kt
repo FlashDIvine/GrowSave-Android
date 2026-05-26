@@ -49,6 +49,8 @@ class ProfileFragment : Fragment() {
         }
     }
 
+
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null // Mencegah kebocoran memori (memory leaks)

@@ -16,16 +16,14 @@ class TransactionRepository(
      * Mengambil daftar transaksi dari server.
      * Mengirimkan token dengan format Bearer token.
      */
-    suspend fun getTransactions(token: String): BaseResponse<List<Transaction>> {
-        val authHeader = "Bearer $token"
-        return apiService.getTransactions(authHeader)
+    suspend fun getTransactions(token: String): BaseResponse<com.smk.growsave.model.TransactionResponse> {
+        return apiService.getTransactions(token)
     }
 
     /**
      * Membuat transaksi baru di server.
      */
     suspend fun createTransaction(token: String, request: CreateTransactionRequest): BaseResponse<Transaction> {
-        val authHeader = "Bearer $token"
-        return apiService.createTransaction(authHeader, request)
+        return apiService.createTransaction(token, request)
     }
 }

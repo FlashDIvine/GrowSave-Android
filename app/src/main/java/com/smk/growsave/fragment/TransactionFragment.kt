@@ -70,6 +70,7 @@ class TransactionFragment : Fragment() {
 
         // 2. Mengamati data transaksi dari server untuk ditampilkan ke RecyclerView
         viewModel.transactions.observe(viewLifecycleOwner) { list ->
+            android.util.Log.d("TransactionFragment", "RecyclerView received ${list.size} items")
             adapter.submitList(list)
         }
 

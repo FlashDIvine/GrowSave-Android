@@ -2,6 +2,7 @@ package com.smk.growsave.utils
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.lifecycle.MutableLiveData
 
 /**
  * SessionManager bertugas menyimpan dan menghapus sesi data pengguna
@@ -19,6 +20,13 @@ class SessionManager(context: Context) {
         private const val KEY_USER_NAME = "user_name"
         private const val KEY_USER_EMAIL = "user_email"
         private const val KEY_USER_ROLE = "user_role"
+
+        /**
+         * LiveData global untuk mendeteksi sesi yang expired (401).
+         * Di-observe oleh MainActivity untuk redirect ke LoginActivity.
+         * Menggunakan wrapper Event agar one-shot dan tidak terpicu ulang saat konfigurasi berubah.
+         */
+        val isSessionExpired = MutableLiveData<Event<Boolean>>()
     }
 
     /**
@@ -38,6 +46,15 @@ class SessionManager(context: Context) {
      */
     fun getToken(): String? {
         return prefs.getString(KEY_TOKEN, null)
+    }
+
+    /**
+     * Menyimpan atau memperbarui JWT Token secara independen.
+     */
+    fun saveToken(token: String) {
+        editor.putString(KEY_TOKEN, token)
+        editor.putBoolean(KEY_IS_LOGGED_IN, true)
+        editor.apply()
     }
 
     /**

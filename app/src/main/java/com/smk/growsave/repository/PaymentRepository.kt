@@ -16,8 +16,7 @@ class PaymentRepository(
      * Membuat token transaksi pembayaran (Snap token) di backend.
      */
     suspend fun createPayment(token: String, billId: Int): BaseResponse<PaymentResponse> {
-        val authHeader = "Bearer $token"
         val request = PaymentRequest(billId)
-        return apiService.createPayment(authHeader, request)
+        return apiService.createPayment(token, request)
     }
 }

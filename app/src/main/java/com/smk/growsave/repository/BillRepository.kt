@@ -16,23 +16,27 @@ class BillRepository(
      * Mengambil daftar tagihan dari server menggunakan token JWT.
      */
     suspend fun getBills(token: String): BaseResponse<List<Bill>> {
-        val authHeader = "Bearer $token"
-        return apiService.getBills(authHeader)
+        return apiService.getBills(token)
     }
 
     /**
      * Membuat tagihan baru di server menggunakan token JWT.
      */
     suspend fun createBill(token: String, request: CreateBillRequest): BaseResponse<Bill> {
-        val authHeader = "Bearer $token"
-        return apiService.createBill(authHeader, request)
+        return apiService.createBill(token, request)
     }
 
     /**
      * Menyelesaikan/menutup tagihan secara manual di server menggunakan token JWT.
      */
     suspend fun completeBill(token: String, billId: Int): BaseResponse<Bill> {
-        val authHeader = "Bearer $token"
-        return apiService.completeBill(authHeader, billId)
+        return apiService.completeBill(token, billId)
+    }
+
+    /**
+     * Menghapus tagihan dari server menggunakan token JWT.
+     */
+    suspend fun deleteBill(token: String, billId: Int): BaseResponse<Unit> {
+        return apiService.deleteBill(token, billId)
     }
 }

@@ -80,4 +80,32 @@ class AnnouncementViewModel(
     fun resetCreateAnnouncementSuccess() {
         _createAnnouncementSuccess.value = false
     }
+
+    private val _deleteAnnouncementSuccess = MutableLiveData<Boolean>()
+    val deleteAnnouncementSuccess: LiveData<Boolean> get() = _deleteAnnouncementSuccess
+
+    /**
+     * Menghapus pengumuman menggunakan token dan ID.
+     */
+    fun deleteAnnouncement(token: String, id: Int) {
+        _isLoading.value = true
+        viewModelScope.launch {
+            try {
+                val response = repository.deleteAnnouncement(token, id)
+                if (response.success) {
+                    _deleteAnnouncementSuccess.value = true
+                } else {
+                    _errorMessage.value = response.message
+                }
+            } catch (e: Exception) {
+                _errorMessage.value = "Koneksi gagal: ${e.localizedMessage}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun resetDeleteAnnouncementSuccess() {
+        _deleteAnnouncementSuccess.value = false
+    }
 }

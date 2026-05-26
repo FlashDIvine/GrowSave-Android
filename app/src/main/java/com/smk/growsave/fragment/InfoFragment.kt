@@ -14,6 +14,7 @@ import com.smk.growsave.adapter.AnnouncementAdapter
 import com.smk.growsave.databinding.FragmentInfoBinding
 import com.smk.growsave.utils.SessionManager
 import com.smk.growsave.viewmodel.AnnouncementViewModel
+import com.smk.growsave.model.Announcement
 
 class InfoFragment : Fragment() {
 
@@ -58,7 +59,12 @@ class InfoFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        adapter = AnnouncementAdapter()
+        val role = sessionManager.getUserRole()
+        val isAdmin = role?.lowercase() == "admin"
+        adapter = AnnouncementAdapter(
+            isAdmin = isAdmin,
+            onDeleteClick = { announcement -> showDeleteAnnouncementDialog(announcement) }
+        )
         binding.rvAnnouncements.layoutManager = LinearLayoutManager(requireContext())
         binding.rvAnnouncements.adapter = adapter
     }
@@ -84,6 +90,31 @@ class InfoFragment : Fragment() {
                 Toast.makeText(requireContext(), errorMsg, Toast.LENGTH_LONG).show()
             }
         }
+
+        announcementViewModel.deleteAnnouncementSuccess.observe(viewLifecycleOwner) { success ->
+            if (success) {
+                Toast.makeText(requireContext(), "Pengumuman berhasil dihapus", Toast.LENGTH_SHORT).show()
+                loadData() // Refresh list otomatis
+                announcementViewModel.resetDeleteAnnouncementSuccess()
+            }
+        }
+    }
+
+    private fun showDeleteAnnouncementDialog(announcement: Announcement) {
+        // Cegah multiple click jika sedang loading
+        if (announcementViewModel.isLoading.value == true) return
+
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Hapus Pengumuman")
+            .setMessage("Yakin ingin menghapus pengumuman ini?")
+            .setPositiveButton("Hapus") { _, _ ->
+                val token = sessionManager.getToken()
+                if (token != null) {
+                    announcementViewModel.deleteAnnouncement(token, announcement.id)
+                }
+            }
+            .setNegativeButton("Batal", null)
+            .show()
     }
 
     private fun setupListeners() {

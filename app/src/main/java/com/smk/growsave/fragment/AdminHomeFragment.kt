@@ -18,6 +18,9 @@ import com.smk.growsave.databinding.FragmentAdminHomeBinding
 import com.smk.growsave.utils.SessionManager
 import com.smk.growsave.viewmodel.BillViewModel
 import com.smk.growsave.viewmodel.TransactionViewModel
+import androidx.lifecycle.lifecycleScope
+import com.smk.growsave.network.RetrofitClient
+import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -63,6 +66,30 @@ class AdminHomeFragment : Fragment() {
         if (token != null) {
             transactionViewModel.fetchTransactions(token)
             billViewModel.fetchBills(token)
+
+            // Ambil info detail room secara asinkron
+            lifecycleScope.launch {
+                try {
+                    val response = RetrofitClient.apiService.getRoom(token)
+                    if (response.success && response.data != null) {
+                        val data = response.data
+                        binding.tvRoomName.text = data.roomName
+                        binding.tvTotalMembers.text = "${data.totalMembers ?: 0} Warga"
+                        binding.tvRoomStatus.text = data.status.replaceFirstChar { 
+                            if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() 
+                        }
+                        if (data.status.equals("active", ignoreCase = true)) {
+                            binding.tvRoomStatus.setTextColor(android.graphics.Color.parseColor("#0D7B43"))
+                            binding.tvRoomStatus.setBackgroundResource(R.drawable.bg_badge_success)
+                        } else {
+                            binding.tvRoomStatus.setTextColor(android.graphics.Color.parseColor("#C81E1E"))
+                            binding.tvRoomStatus.setBackgroundResource(R.drawable.bg_badge_danger)
+                        }
+                    }
+                } catch (e: Exception) {
+                    binding.tvRoomName.text = "Error Room"
+                }
+            }
         } else {
             Toast.makeText(requireContext(), "Sesi berakhir. Silakan login kembali.", Toast.LENGTH_SHORT).show()
         }

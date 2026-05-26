@@ -16,6 +16,7 @@ class BillAdapter(
     private var bills: List<Bill> = emptyList(),
     private val isAdmin: Boolean = false,
     private val onCompleteClick: ((Bill) -> Unit)? = null,
+    private val onDeleteClick: ((Bill) -> Unit)? = null,
     private val onBillClick: (Bill) -> Unit
 ) : RecyclerView.Adapter<BillAdapter.BillViewHolder>() {
 
@@ -37,7 +38,7 @@ class BillAdapter(
     }
 
     override fun onBindViewHolder(holder: BillViewHolder, position: Int) {
-        holder.bind(bills[position], isAdmin, onCompleteClick, onBillClick)
+        holder.bind(bills[position], isAdmin, onCompleteClick, onDeleteClick, onBillClick)
     }
 
     override fun getItemCount(): Int = bills.size
@@ -50,6 +51,7 @@ class BillAdapter(
             bill: Bill,
             isAdmin: Boolean,
             onCompleteClick: ((Bill) -> Unit)?,
+            onDeleteClick: ((Bill) -> Unit)?,
             onBillClick: (Bill) -> Unit
         ) {
             binding.tvTitle.text = bill.title
@@ -114,6 +116,16 @@ class BillAdapter(
                 }
             } else {
                 binding.btnComplete.visibility = View.GONE
+            }
+
+            // Tombol Hapus Khusus Admin
+            if (isAdmin) {
+                binding.btnDelete.visibility = View.VISIBLE
+                binding.btnDelete.setOnClickListener {
+                    onDeleteClick?.invoke(bill)
+                }
+            } else {
+                binding.btnDelete.visibility = View.GONE
             }
 
             // Aksi klik tombol bayar / item

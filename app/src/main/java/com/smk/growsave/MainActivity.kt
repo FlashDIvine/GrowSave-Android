@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity() {
         sessionManager = SessionManager(this)
 
         // Cek Login: Jika user belum login, langsung redirect ke LoginActivity
-        if (!sessionManager.isLoggedIn()) {
+        if (!sessionManager.isLoggedIn() || sessionManager.getToken().isNullOrEmpty()) {
             goToLogin()
             return
         }
@@ -36,6 +36,16 @@ class MainActivity : AppCompatActivity() {
         // Setup ViewBinding
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Observe event sesi expired dari interceptor secara global (decoupled)
+        SessionManager.isSessionExpired.observe(this) { event ->
+            event.getContentIfNotHandled()?.let { expired ->
+                if (expired) {
+                    sessionManager.clearSession()
+                    goToLogin()
+                }
+            }
+        }
 
         val role = sessionManager.getUserRole()
         val isAdmin = role?.lowercase() == "admin"
@@ -83,6 +93,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        // Proteksi: Jika sesi hilang saat aplikasi di-resume, redirect ke login
+        if (!sessionManager.isLoggedIn() || sessionManager.getToken().isNullOrEmpty()) {
+            goToLogin()
+        }
+    }
+
     /**
      * Memilih tab bottom navigation secara programmatis.
      */
@@ -101,6 +119,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun goToLogin() {
         val intent = Intent(this, LoginActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
         finish() // Tutup MainActivity agar tidak bisa kembali ke halaman ini jika menekan back button
     }

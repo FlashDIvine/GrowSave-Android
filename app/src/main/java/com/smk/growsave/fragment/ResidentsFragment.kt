@@ -103,6 +103,8 @@ class ResidentsFragment : Fragment() {
         binding.tvSummaryText.text = "Total penghuni aktif di room ini: $count warga."
     }
 
+
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

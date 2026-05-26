@@ -105,6 +105,9 @@ class FinanceFragment : Fragment() {
             onCompleteClick = { bill ->
                 showCompleteBillConfirmationDialog(bill)
             },
+            onDeleteClick = { bill ->
+                showDeleteBillConfirmationDialog(bill)
+            },
             onBillClick = { bill ->
                 if (bill.userPaymentStatus.equals("paid", ignoreCase = true)) {
                     Toast.makeText(requireContext(), "Tagihan ini sudah lunas.", Toast.LENGTH_SHORT).show()
@@ -168,6 +171,14 @@ class FinanceFragment : Fragment() {
                 Toast.makeText(requireContext(), "Iuran berhasil ditutup secara manual!", Toast.LENGTH_SHORT).show()
                 billViewModel.resetCompleteBillSuccess()
                 loadData()
+            }
+        }
+
+        billViewModel.deleteBillSuccess.observe(viewLifecycleOwner) { success ->
+            if (success) {
+                Toast.makeText(requireContext(), "Tagihan berhasil dihapus", Toast.LENGTH_SHORT).show()
+                billViewModel.resetDeleteBillSuccess()
+                loadData() // Refresh list otomatis
             }
         }
 
@@ -272,6 +283,26 @@ class FinanceFragment : Fragment() {
                 val token = sessionManager.getToken()
                 if (token != null) {
                     billViewModel.completeBill(token, bill.id)
+                }
+                dialog.dismiss()
+            }
+            .setNegativeButton("Batal") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
+
+    private fun showDeleteBillConfirmationDialog(bill: Bill) {
+        // Cegah multiple click jika sedang loading
+        if (billViewModel.isLoading.value == true) return
+
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Hapus Tagihan")
+            .setMessage("Yakin ingin menghapus tagihan ini?")
+            .setPositiveButton("Hapus") { dialog, _ ->
+                val token = sessionManager.getToken()
+                if (token != null) {
+                    billViewModel.deleteBill(token, bill.id)
                 }
                 dialog.dismiss()
             }

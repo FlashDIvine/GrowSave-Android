@@ -124,4 +124,32 @@ class BillViewModel(
     fun resetCompleteBillSuccess() {
         _completeBillSuccess.value = false
     }
+
+    private val _deleteBillSuccess = MutableLiveData<Boolean>()
+    val deleteBillSuccess: LiveData<Boolean> get() = _deleteBillSuccess
+
+    /**
+     * Menghapus tagihan menggunakan token dan ID.
+     */
+    fun deleteBill(token: String, id: Int) {
+        _isLoading.value = true
+        viewModelScope.launch {
+            try {
+                val response = repository.deleteBill(token, id)
+                if (response.success) {
+                    _deleteBillSuccess.value = true
+                } else {
+                    _errorMessage.value = response.message
+                }
+            } catch (e: Exception) {
+                _errorMessage.value = "Koneksi gagal: ${e.localizedMessage}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun resetDeleteBillSuccess() {
+        _deleteBillSuccess.value = false
+    }
 }

@@ -22,6 +22,7 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Multipart
 import retrofit2.http.Part
+import retrofit2.http.DELETE
 
 /**
  * Data class untuk merepresentasikan data Post dari API JsonPlaceholder.
@@ -78,7 +79,7 @@ interface ApiService {
     @GET("api/transactions")
     suspend fun getTransactions(
         @Header("Authorization") token: String
-    ): BaseResponse<List<com.smk.growsave.model.Transaction>>
+    ): BaseResponse<com.smk.growsave.model.TransactionResponse>
 
     /**
      * Endpoint untuk mendapatkan daftar pengumuman.
@@ -141,6 +142,11 @@ interface ApiService {
         @Header("Authorization") token: String
     ): BaseResponse<List<RoomRequest>>
 
+    @GET("api/room")
+    suspend fun getRoom(
+        @Header("Authorization") token: String
+    ): BaseResponse<com.smk.growsave.model.RoomDetailResponse>
+
     @GET("api/room/residents")
     suspend fun getRoomResidents(
         @Header("Authorization") token: String
@@ -154,6 +160,18 @@ interface ApiService {
 
     @POST("api/room/reject/{id}")
     suspend fun rejectRoom(
+        @Header("Authorization") token: String,
+        @Path("id") id: Int
+    ): BaseResponse<Unit>
+
+    @DELETE("api/announcements/{id}")
+    suspend fun deleteAnnouncement(
+        @Header("Authorization") token: String,
+        @Path("id") id: Int
+    ): BaseResponse<Unit>
+
+    @DELETE("api/bills/{id}")
+    suspend fun deleteBill(
         @Header("Authorization") token: String,
         @Path("id") id: Int
     ): BaseResponse<Unit>

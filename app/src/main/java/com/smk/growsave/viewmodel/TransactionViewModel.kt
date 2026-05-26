@@ -19,6 +19,15 @@ class TransactionViewModel(
     private val _transactions = MutableLiveData<List<Transaction>>()
     val transactions: LiveData<List<Transaction>> get() = _transactions
 
+    private val _totalSaldo = MutableLiveData<Double>()
+    val totalSaldo: LiveData<Double> get() = _totalSaldo
+
+    private val _pemasukanBulanIni = MutableLiveData<Double>()
+    val pemasukanBulanIni: LiveData<Double> get() = _pemasukanBulanIni
+
+    private val _pengeluaranBulanIni = MutableLiveData<Double>()
+    val pengeluaranBulanIni: LiveData<Double> get() = _pengeluaranBulanIni
+
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> get() = _isLoading
 
@@ -37,7 +46,11 @@ class TransactionViewModel(
             try {
                 val response = repository.getTransactions(token)
                 if (response.success) {
-                    _transactions.value = response.data ?: emptyList()
+                    val data = response.data
+                    _transactions.value = data?.riwayatTransaksi ?: emptyList()
+                    _totalSaldo.value = data?.totalSaldo ?: 0.0
+                    _pemasukanBulanIni.value = data?.pemasukanBulanIni ?: 0.0
+                    _pengeluaranBulanIni.value = data?.pengeluaranBulanIni ?: 0.0
                 } else {
                     _errorMessage.value = response.message
                 }

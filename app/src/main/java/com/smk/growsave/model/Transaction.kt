@@ -9,7 +9,7 @@ data class Transaction(
     @SerializedName("id")
     val id: Int,
 
-    @SerializedName("title")
+    @SerializedName("category")
     val title: String,
 
     @SerializedName("type")
@@ -18,6 +18,6 @@ data class Transaction(
     @SerializedName("amount")
     val amount: Long,
 
-    @SerializedName("created_at")
+    @SerializedName("transaction_date")
     val createdAt: String
 )

@@ -33,23 +33,30 @@ class AuthRepository(
     }
 
     suspend fun getRoomRequests(token: String): BaseResponse<List<RoomRequest>> {
-        val authHeader = "Bearer $token"
-        return apiService.getRoomRequests(authHeader)
+        return apiService.getRoomRequests(token)
     }
 
     suspend fun getRoomResidents(token: String): BaseResponse<List<RoomMember>> {
-        val authHeader = "Bearer $token"
-        return apiService.getRoomResidents(authHeader)
+        return apiService.getRoomResidents(token)
     }
 
     suspend fun approveRoom(token: String, id: Int): BaseResponse<Unit> {
-        val authHeader = "Bearer $token"
-        return apiService.approveRoom(authHeader, id)
+        return apiService.approveRoom(token, id)
     }
 
     suspend fun rejectRoom(token: String, id: Int): BaseResponse<Unit> {
-        val authHeader = "Bearer $token"
-        return apiService.rejectRoom(authHeader, id)
+        return apiService.rejectRoom(token, id)
+    }
+
+    /**
+     * Memvalidasi token ke backend.
+     * Saat ini menggunakan GET /api/room karena endpoint khusus profile / me belum tersedia.
+     * TODO: Jika backend sudah menyediakan endpoint auth khusus seperti /api/me atau /api/profile,
+     *       ganti pemanggilan apiService.getRoom(token) di bawah ini menjadi endpoint tersebut.
+     */
+    suspend fun validateToken(token: String): Boolean {
+        val response = apiService.getRoom(token)
+        return response.success
     }
 }
 
