@@ -68,7 +68,6 @@ class RegisterActivity : AppCompatActivity() {
                 name = name,
                 email = email,
                 password = password,
-                role = "user",
                 roomCode = roomCode
             )
         }

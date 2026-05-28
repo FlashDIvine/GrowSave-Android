@@ -136,11 +136,12 @@
 
         <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F3F4F6" android:layout_marginVertical="12dp"/>
 
-        <RelativeLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <LinearLayout
+                android:id="@+id/layout_nominal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
@@ -164,11 +165,11 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/layout_actions"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
                 android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:gravity="end|center_vertical">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnComplete"
@@ -212,6 +213,20 @@
                     android:insetTop="0dp"
                     android:insetBottom="0dp" />
             </LinearLayout>
-        </RelativeLayout>
+
+            <androidx.constraintlayout.helper.widget.Flow
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:flow_wrapMode="chain"
+                app:flow_horizontalStyle="spread_inside"
+                app:flow_horizontalBias="0.0"
+                app:flow_horizontalGap="8dp"
+                app:flow_verticalGap="8dp"
+                app:constraint_referenced_ids="layout_nominal,layout_actions"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

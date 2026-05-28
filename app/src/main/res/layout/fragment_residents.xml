@@ -93,71 +93,142 @@
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
-                <!-- SEARCH -->
-                <com.google.android.material.textfield.TextInputLayout
+                <!-- SEGMENT SELECTOR -->
+                <LinearLayout
+                    android:id="@+id/layoutSegmentControl"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
-                    app:boxBackgroundColor="#FFFFFF"
-                    app:boxBackgroundMode="filled"
-                    app:boxCornerRadiusBottomEnd="10dp"
-                    app:boxCornerRadiusBottomStart="10dp"
-                    app:boxCornerRadiusTopEnd="10dp"
-                    app:boxCornerRadiusTopStart="10dp"
-                    app:boxStrokeColor="#D8D8D8"
-                    app:boxStrokeWidth="1dp"
-                    app:hintEnabled="false"
-                    app:startIconDrawable="@drawable/ic_search"
-                    app:startIconTint="#B0B0B0">
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/bg_segment_control"
+                    android:orientation="horizontal"
+                    android:padding="4dp">
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etSearch"
+                    <TextView
+                        android:id="@+id/btnTabResidents"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_segment_item_active"
+                        android:gravity="center"
+                        android:paddingVertical="10dp"
+                        android:text="Warga Aktif"
+                        android:textColor="#0D7B43"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:clickable="true"
+                        android:focusable="true" />
+
+                    <TextView
+                        android:id="@+id/btnTabRequests"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@android:color/transparent"
+                        android:gravity="center"
+                        android:paddingVertical="10dp"
+                        android:text="Persetujuan"
+                        android:textColor="#6B7280"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:clickable="true"
+                        android:focusable="true" />
+
+                </LinearLayout>
+
+                <!-- TAB: WARGA AKTIF -->
+                <LinearLayout
+                    android:id="@+id/layoutResidentsTab"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="visible">
+
+                    <!-- SEARCH -->
+                    <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@null"
-                        android:hint="Cari nama atau blok..."
-                        android:paddingTop="14dp"
-                        android:paddingBottom="14dp"
-                        android:textColor="#222222"
-                        android:textColorHint="#B0B0B0"
-                        android:textSize="12sp" />
+                        android:layout_marginTop="14dp"
+                        app:boxBackgroundColor="#FFFFFF"
+                        app:boxBackgroundMode="filled"
+                        app:boxCornerRadiusBottomEnd="10dp"
+                        app:boxCornerRadiusBottomStart="10dp"
+                        app:boxCornerRadiusTopEnd="10dp"
+                        app:boxCornerRadiusTopStart="10dp"
+                        app:boxStrokeColor="#D8D8D8"
+                        app:boxStrokeWidth="1dp"
+                        app:hintEnabled="false"
+                        app:startIconDrawable="@drawable/ic_search"
+                        app:startIconTint="#B0B0B0">
 
-                </com.google.android.material.textfield.TextInputLayout>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etSearch"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@null"
+                            android:hint="Cari nama atau blok..."
+                            android:paddingTop="14dp"
+                            android:paddingBottom="14dp"
+                            android:textColor="#222222"
+                            android:textColorHint="#B0B0B0"
+                            android:textSize="12sp" />
 
-                <!-- LIST -->
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvResidents"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:nestedScrollingEnabled="false"
-                    android:layout_marginTop="18dp" />
+                    </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- SUMMARY -->
+                    <!-- LIST -->
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvResidents"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false"
+                        android:layout_marginTop="18dp" />
+
+                    <!-- SUMMARY -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="18dp"
+                        android:layout_marginBottom="24dp"
+                        android:background="@drawable/bg_summary_blue"
+                        android:orientation="vertical"
+                        android:padding="18dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Statistik Penghuni"
+                            android:textColor="#FFFFFF"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvSummaryText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="Memuat statistik..."
+                            android:textColor="#DCE8FF"
+                            android:textSize="12sp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <!-- TAB: PERSETUJUAN -->
                 <LinearLayout
+                    android:id="@+id/layoutRequestsTab"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="18dp"
-                    android:layout_marginBottom="24dp"
-                    android:background="@drawable/bg_summary_blue"
                     android:orientation="vertical"
-                    android:padding="18dp">
+                    android:visibility="gone">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <!-- LIST -->
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvRequests"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Statistik Penghuni"
-                        android:textColor="#FFFFFF"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tvSummaryText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="Memuat statistik..."
-                        android:textColor="#DCE8FF"
-                        android:textSize="12sp" />
+                        android:nestedScrollingEnabled="false"
+                        android:layout_marginTop="18dp"
+                        android:layout_marginBottom="24dp" />
 
                 </LinearLayout>
 

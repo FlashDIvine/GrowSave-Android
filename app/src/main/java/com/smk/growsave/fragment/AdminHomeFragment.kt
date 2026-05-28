@@ -167,8 +167,8 @@ class AdminHomeFragment : Fragment() {
         }
 
         binding.btnQuickRoomApproval.setOnClickListener {
-            // Select Residents tab in Bottom Navigation
-            (activity as? MainActivity)?.selectTab(R.id.menu_admin_residents)
+            // Select Residents tab in Bottom Navigation and open approvals tab
+            (activity as? MainActivity)?.selectTab(R.id.menu_admin_residents, showApproval = true)
         }
 
         binding.btnSeeAll.setOnClickListener {

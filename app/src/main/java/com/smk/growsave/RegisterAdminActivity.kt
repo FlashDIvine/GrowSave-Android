@@ -12,7 +12,7 @@ import com.smk.growsave.viewmodel.AuthViewModel
 
 /**
  * RegisterAdminActivity menangani form pendaftaran pengguna dengan hak akses Admin.
- * Melakukan validasi kode admin lokal ("ADMIN123") sebelum melanjutkan registrasi ke API.
+ * Mengirimkan admin_code ke backend untuk validasi.
  * Setelah registrasi berhasil, sesi disimpan dan pengguna diarahkan ke MainActivity.
  */
 class RegisterAdminActivity : AppCompatActivity() {
@@ -20,11 +20,6 @@ class RegisterAdminActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAdminRegisterBinding
     private lateinit var sessionManager: SessionManager
     private val viewModel: AuthViewModel by viewModels()
-
-    companion object {
-        // Kode admin yang sah untuk verifikasi pendaftaran admin
-        private const val VALID_ADMIN_CODE = "ADMIN123"
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,20 +64,12 @@ class RegisterAdminActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // Validasi Kode Admin
-            if (adminCode != VALID_ADMIN_CODE) {
-                binding.etAdminCode.error = "Kode admin salah"
-                Toast.makeText(this, "Kode admin salah", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            // Memicu proses register pada ViewModel dengan role "admin"
+            // Kirim admin_code ke backend untuk validasi
             viewModel.register(
                 name = name,
                 email = email,
                 password = password,
-                role = "admin",
-                roomCode = null
+                adminCode = adminCode
             )
         }
 

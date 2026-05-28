@@ -5,7 +5,7 @@
 > **Arsitektur**: MVVM (Model-View-ViewModel)  
 > **Package**: `com.smk.growsave`  
 > **Min SDK**: 24 | **Target SDK**: 36  
-> **Terakhir Diperbarui**: 21 Mei 2026
+> **Terakhir Diperbarui**: 28 Mei 2026
 
 ---
 
@@ -69,13 +69,15 @@ app/src/main/
 │   ├── adapter/                       ← RecyclerView Adapters
 │   │   ├── AnnouncementAdapter.kt
 │   │   ├── BillAdapter.kt
+│   │   ├── RoomRequestAdapter.kt      ← Adapter permohonan gabung room
 │   │   └── TransactionAdapter.kt
 │   │
 │   ├── fragment/                      ← UI Fragments
 │   │   ├── HomeFragment.kt
 │   │   ├── TransactionFragment.kt
 │   │   ├── AnnouncementFragment.kt
-│   │   ├── BillsFragment.kt
+│   │   ├── FinanceFragment.kt         ← Menggantikan BillsFragment (Dashboard Iuran & Midtrans)
+│   │   ├── ResidentsFragment.kt       ← Daftar warga & permohonan room
 │   │   └── ProfileFragment.kt
 │   │
 │   ├── model/                         ← Data Models
@@ -84,6 +86,11 @@ app/src/main/
 │   │   ├── Transaction.kt
 │   │   ├── Announcement.kt
 │   │   ├── Bill.kt
+│   │   ├── BillStats.kt               ← Model statistik iuran (lokal)
+│   │   ├── RoomMember.kt              ← Model anggota/penghuni room
+│   │   ├── RoomRequest.kt             ← Model pengajuan gabung room
+│   │   ├── PaymentRequest.kt          ← Request Snap Token Midtrans
+│   │   ├── PaymentResponse.kt         ← Response Snap Token Midtrans
 │   │   └── auth/
 │   │       ├── LoginRequest.kt
 │   │       └── LoginResponse.kt
@@ -91,43 +98,20 @@ app/src/main/
 │   ├── network/                       ← Retrofit Configuration
 │   │   ├── ApiService.kt              ← Interface endpoint API
 │   │   └── RetrofitClient.kt          ← Singleton Retrofit + OkHttp
-│   │
 │   ├── repository/                    ← Data Repositories
 │   │   ├── AuthRepository.kt
 │   │   ├── TransactionRepository.kt
 │   │   ├── AnnouncementRepository.kt
-│   │   └── BillRepository.kt
+│   │   ├── BillRepository.kt
+│   │   └── PaymentRepository.kt
 │   │
 │   ├── utils/                         ← Utility Classes
-│   │   └── SessionManager.kt          ← JWT Token + Session management
-│   │
 │   └── viewmodel/                     ← ViewModels (MVVM)
-│       ├── AuthViewModel.kt
-│       ├── TransactionViewModel.kt
-│       ├── AnnouncementViewModel.kt
-│       └── BillViewModel.kt
 │
 └── res/
     ├── layout/
-    │   ├── activity_login.xml         ← Form login
-    │   ├── activity_main.xml          ← FrameLayout + BottomNavigationView
-    │   ├── fragment_home.xml
-    │   ├── fragment_transaction.xml   ← RecyclerView + ProgressBar
-    │   ├── fragment_announcement.xml  ← RecyclerView + ProgressBar
-    │   ├── fragment_bills.xml         ← RecyclerView + ProgressBar
-    │   ├── fragment_profile.xml       ← Welcome text + Logout button
-    │   ├── item_transaction.xml       ← Item layout RecyclerView
-    │   ├── item_announcement.xml      ← Item layout RecyclerView (+ ImageView)
-    │   └── item_bill.xml             ← Item layout RecyclerView
-    │
-    ├── drawable/                      ← Vector icons untuk navigasi
-    │   ├── ic_home.xml
-    │   ├── ic_transaction.xml
-    │   ├── ic_announcement.xml
-    │   └── ic_profile.xml
-    │
+    ├── drawable/
     └── menu/
-        └── bottom_menu.xml           ← Menu item Bottom Navigation
 ```
 
 ---
@@ -138,16 +122,19 @@ app/src/main/
 | Fitur | Status | Keterangan |
 |---|---|---|
 | Login (email + password) | ✅ Selesai | `LoginActivity` + `AuthViewModel` |
+| Register (Admin & User) | ✅ Selesai | Pendaftaran akun baru. Admin divalidasi backend via `admin_code`, User menggunakan `room_code`. |
 | Session Login (token simpan) | ✅ Selesai | `SessionManager` (SharedPreferences) |
 | Auto Login | ✅ Selesai | Cek `isLoggedIn()` di `LoginActivity.onCreate()` |
 | Logout | ✅ Selesai | `clearSession()` di `ProfileFragment` |
 | Redirect jika belum login | ✅ Selesai | Cek di `MainActivity.onCreate()` |
 
-### 🧭 Navigasi
+### 🧭 Navigasi & Safety Guards
 | Fitur | Status | Keterangan |
 |---|---|---|
-| Bottom Navigation | ✅ Selesai | 4 tab: Home, Transaction, Announcement, Profile |
+| Bottom Navigation | ✅ Selesai | 4 tab: Home, Residents, Finance, Profile |
 | Fragment switching | ✅ Selesai | `supportFragmentManager.replace()` |
+| Navigation Lock Guard | ✅ Selesai | Mencegah race condition/spam klik tombol navigasi |
+| Duplicate Fragment Guard | ✅ Selesai | Menghindari reload fragment jika tujuan sama dengan aktif |
 
 ### 📊 Data & API Integration
 | Fitur | Status | Keterangan |
@@ -155,15 +142,19 @@ app/src/main/
 | Transactions API | ✅ Selesai | RecyclerView + warna income/expense |
 | Announcements API | ✅ Selesai | RecyclerView + Glide image loading |
 | Bills API | ✅ Selesai | RecyclerView + warna status paid/unpaid |
+| Midtrans Snap API | ✅ Selesai | Pembayaran tagihan dengan Snap Token Midtrans |
+| Room Approval API | ✅ Selesai | Mengambil permohonan masuk, approve/reject gabung room |
 
-### 🎨 UI Components
+### 🎨 UI Components & Dashboard Stats
 | Fitur | Status | Keterangan |
 |---|---|---|
-| RecyclerView (3 fitur) | ✅ Selesai | Transaction, Announcement, Bill |
+| RecyclerView (5 fitur) | ✅ Selesai | Transaction, Announcement, Bill, Resident, RoomRequest |
+| Segmented Tab Control | ✅ Selesai | Beralih antara daftar warga & permohonan di `ResidentsFragment` |
+| Local Calculated Stats | ✅ Selesai | `BillStats` dihitung locally dengan `LiveData.map` tanpa panggil API tambahan |
+| Dashboard Stat Cards | ✅ Selesai | Desain card premium menampilkan total iuran unpaid, active bills, dll. |
 | Format Rupiah otomatis | ✅ Selesai | `NumberFormat` locale `id-ID` |
 | Glide Image Loading | ✅ Selesai | Gambar pengumuman dari URL |
-| Loading State (ProgressBar) | ✅ Selesai | Di setiap fragment data |
-| Error Handling (Toast) | ✅ Selesai | Di setiap fragment data |
+| Loading, Empty, Error State | ✅ Selesai | Layout loader, visualisasi kosong, dan error handler dengan retry |
 
 ---
 
@@ -172,26 +163,22 @@ app/src/main/
 | Method | Endpoint | Auth | Deskripsi | File Terkait |
 |---|---|---|---|---|
 | `POST` | `/api/login` | ❌ | Login pengguna | `AuthRepository.kt` |
+| `POST` | `/api/register` | ❌ | Register user / admin baru | `AuthRepository.kt` |
 | `GET` | `/api/transactions` | ✅ Bearer | Daftar transaksi | `TransactionRepository.kt` |
 | `GET` | `/api/announcements` | ✅ Bearer | Daftar pengumuman | `AnnouncementRepository.kt` |
 | `GET` | `/api/bills` | ✅ Bearer | Daftar tagihan | `BillRepository.kt` |
+| `POST` | `/api/bills/{id}/complete` | ✅ Bearer | Menyelesaikan iuran manual (admin) | `BillRepository.kt` |
+| `DELETE` | `/api/bills/{id}` | ✅ Bearer | Menghapus tagihan (admin) | `BillRepository.kt` |
+| `POST` | `/api/payments` | ✅ Bearer | Membuat snap token pembayaran | `PaymentRepository.kt` |
+| `GET` | `/api/room/requests` | ✅ Bearer | Daftar request gabung room | `AuthRepository.kt` |
+| `GET` | `/api/room/residents` | ✅ Bearer | Daftar warga aktif di room | `AuthRepository.kt` |
+| `POST` | `/api/room/approve/{id}` | ✅ Bearer | Menyetujui request gabung (admin) | `AuthRepository.kt` |
+| `POST` | `/api/room/reject/{id}` | ✅ Bearer | Menolak request gabung (admin) | `AuthRepository.kt` |
 
 ### Base URL
 ```
 http://10.0.2.2:8000/
 ```
-> `10.0.2.2` adalah alias localhost untuk Android Emulator.  
-> Untuk device fisik, ganti dengan IP address komputer backend.
-
-### Format Response Standar
-```json
-{
-  "success": true,
-  "message": "Success",
-  "data": { }
-}
-```
-Dibungkus dengan generic class `BaseResponse<T>`.
 
 ---
 
@@ -203,9 +190,15 @@ Dibungkus dengan generic class `BaseResponse<T>`.
 | `User` | `model` | `id`, `name`, `email`, `role` + enum `UserRole` |
 | `LoginRequest` | `model.auth` | `email`, `password` |
 | `LoginResponse` | `model.auth` | `token`, `user` |
+| `RegisterRequest` | `model.auth` | `name`, `email`, `password`, `adminCode`, `roomCode` |
 | `Transaction` | `model` | `id`, `title`, `type`, `amount`, `createdAt` |
 | `Announcement` | `model` | `id`, `title`, `content`, `imageUrl`, `createdAt` |
 | `Bill` | `model` | `id`, `title`, `amount`, `dueDate`, `status` |
+| `BillStats` | `model` | `totalBills`, `activeBills`, `paidBills`, `totalUnpaidAmount` |
+| `RoomRequest` | `model` | `id`, `user`, `roomCode`, `status` |
+| `RoomMember` | `model` | `id`, `roomId`, `userId`, `status`, `joinedAt`, `user` |
+| `PaymentRequest` | `model` | `billId` |
+| `PaymentResponse` | `model` | `snapToken` |
 
 ---
 
@@ -214,20 +207,20 @@ Dibungkus dengan generic class `BaseResponse<T>`.
 ### Repository
 | Repository | Fungsi | Token |
 |---|---|---|
-| `AuthRepository` | `login(request)` | ❌ |
-| `TransactionRepository` | `getTransactions(token)` | ✅ Bearer |
-| `AnnouncementRepository` | `getAnnouncements(token)` | ✅ Bearer |
-| `BillRepository` | `getBills(token)` | ✅ Bearer |
+| `AuthRepository` | `login(req)`, `register(req)`, `fetchRoomRequests()`, `fetchRoomResidents()`, `approveRoom()`, `rejectRoom()` | ❌ / ✅ |
+| `TransactionRepository` | `getTransactions(token)`, `createTransaction()` | ✅ Bearer |
+| `AnnouncementRepository` | `getAnnouncements(token)`, `createAnnouncement()`, `deleteAnnouncement()` | ✅ Bearer |
+| `BillRepository` | `getBills(token)`, `createBill()`, `completeBill()`, `deleteBill()` | ✅ Bearer |
+| `PaymentRepository` | `createPayment(token, billId)` | ✅ Bearer |
 
 ### ViewModel
 | ViewModel | LiveData | Digunakan di |
 |---|---|---|
-| `AuthViewModel` | `loginResult`, `isLoading`, `errorMessage` | `LoginActivity` |
+| `AuthViewModel` | `loginResult`, `roomResidents`, `roomRequests`, `roomActionSuccess`, `isLoading`, `errorMessage` | `LoginActivity`, `RegisterActivity`, `RegisterAdminActivity`, `ResidentsFragment` |
 | `TransactionViewModel` | `transactions`, `isLoading`, `errorMessage` | `TransactionFragment` |
 | `AnnouncementViewModel` | `announcements`, `isLoading`, `errorMessage` | `AnnouncementFragment` |
-| `BillViewModel` | `bills`, `isLoading`, `errorMessage` | `BillsFragment` |
-
-> Semua ViewModel diinisialisasi menggunakan `ViewModelProvider(this)[ClassName::class.java]` (tanpa library `fragment-ktx`).
+| `BillViewModel` | `bills`, `billStats`, `isLoading`, `errorMessage`, `completeBillSuccess`, `deleteBillSuccess` | `FinanceFragment` |
+| `PaymentViewModel` | `snapToken`, `isLoading`, `errorMessage` | `FinanceFragment`, `PaymentActivity` |
 
 ---
 
@@ -241,28 +234,6 @@ Dibungkus dengan generic class `BaseResponse<T>`.
 <!-- Mengizinkan HTTP (non-HTTPS) untuk development lokal -->
 <application android:usesCleartextTraffic="true" ... >
 ```
-
-### Launcher Activity
-```
-LoginActivity → (auto login check) → MainActivity
-```
-`LoginActivity` adalah Activity pertama yang dibuka (`LAUNCHER`). Jika user sudah login (`isLoggedIn() == true`), langsung redirect ke `MainActivity`.
-
-### Authorization Header
-Semua endpoint selain `/api/login` memerlukan header:
-```
-Authorization: Bearer {jwt_token}
-```
-Token diambil dari `SessionManager.getToken()` dan ditambahkan prefix "Bearer " di setiap Repository.
-
-### SessionManager (SharedPreferences)
-| Key | Tipe | Keterangan |
-|---|---|---|
-| `jwt_token` | String | Token JWT dari server |
-| `is_logged_in` | Boolean | Status login |
-| `user_name` | String | Nama pengguna |
-| `user_email` | String | Email pengguna |
-| `user_role` | String | Role (admin/user) |
 
 ---
 
@@ -283,9 +254,9 @@ implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.7")
 // Image Loading
 implementation("com.github.bumptech.glide:glide:4.16.0")
 
-// Android Core (via Version Catalog)
+// Android Core
 implementation(libs.androidx.core.ktx)
-implementation(libs.androidx.appcompat)
+implementation(libs.appcompat)
 implementation(libs.material)
 implementation(libs.androidx.activity)
 implementation(libs.androidx.constraintlayout)
@@ -303,28 +274,24 @@ buildFeatures {
 ## 9. 📍 Progress Saat Ini
 
 ```
-███████████████████████░░░░░░░  75% — Fase 1 (Core Features) Selesai
+████████████████████████████░░  95% — Fase 2 (Payment & Room Management) Selesai
 ```
 
 ### Fase yang Sudah Selesai:
 - ✅ **Fase 0**: Setup Networking (Retrofit, OkHttp, Gson)
-- ✅ **Fase 1A**: Authentication (Login, Session, Auto-login, Logout)
-- ✅ **Fase 1B**: Main Navigation (Bottom Navigation + 4 Fragment)
-- ✅ **Fase 1C**: API Integration (Transactions, Announcements, Bills)
+- ✅ **Fase 1**: Authentication & Navigation (Login, Session, Navigation, Register Admin & User)
+- ✅ **Fase 2**: Payment & Room Management (Midtrans Snap WebView Integration, Room Approval/Rejection System, Local Calculated Dashboard Stats, Navigation Safety Guards)
 
 ### Fase yang Sedang Dikerjakan:
-- 🔄 **Fase 2**: Payment Integration (Midtrans)
-  - `POST /api/payments` → mendapatkan `snap_token`
-  - Midtrans SDK untuk membuka halaman pembayaran
+- 🔄 **Fase 3**: Bug Fixing & Production Release
+  - Pengujian komprehensif aliran pembayaran online dan penanganan status respons
 
 ---
 
 ## 10. 📝 TODO Selanjutnya
 
 ### 🔴 Prioritas Tinggi
-- [ ] **Payment API** — Endpoint `POST /api/payments` + model `PaymentRequest` & `PaymentResponse`
-- [ ] **Midtrans SDK** — Install dependency, setup SDK, buka payment page dari `snap_token`
-- [ ] **Register** — Endpoint `POST /api/register` + `RegisterActivity`
+- [ ] **Testing Integrasi Midtrans** — Pengujian menyeluruh alur pembayaran di Sandbox dari Snap Token hingga status pembaruan transaksi.
 
 ### 🟡 Prioritas Sedang
 - [ ] **Profile Update** — Endpoint `PUT /api/profile` + edit profil di `ProfileFragment`

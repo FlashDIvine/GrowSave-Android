@@ -20,6 +20,11 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var sessionManager: SessionManager
+    var selectApprovalTab: Boolean = false
+
+    private var isNavigating = false
+    private var lastNavigationTime: Long = 0L
+    private val NAVIGATION_DEBOUNCE_MS = 300L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -104,17 +109,42 @@ class MainActivity : AppCompatActivity() {
     /**
      * Memilih tab bottom navigation secara programmatis.
      */
-    fun selectTab(itemId: Int) {
+    fun selectTab(itemId: Int, showApproval: Boolean = false) {
+        selectApprovalTab = showApproval
         binding.bottomNavigation.selectedItemId = itemId
     }
 
     /**
-     * Memasang/mengganti Fragment di dalam FrameLayout container.
+     * Memasang/mengganti Fragment di dalam FrameLayout container dengan proteksi dari spam klik dan race condition.
      */
     private fun loadFragment(fragment: Fragment) {
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, fragment)
-            .commit()
+        // 1. Navigation lock guard: abaikan jika sedang memproses navigasi
+        if (isNavigating) {
+            return
+        }
+
+        // 2. Duplicate fragment guard: abaikan jika destination fragment sama dengan yang aktif
+        val currentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
+        if (currentFragment != null && currentFragment::class.java == fragment::class.java) {
+            return
+        }
+
+        // 3. Debounce guard: batasi agar tidak dipanggil dalam interval pendek (< 300ms)
+        val currentTime = System.currentTimeMillis()
+        if (currentTime - lastNavigationTime < NAVIGATION_DEBOUNCE_MS) {
+            return
+        }
+        lastNavigationTime = currentTime
+
+        isNavigating = true
+        try {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .runOnCommit { isNavigating = false }
+                .commitAllowingStateLoss()
+        } catch (e: Exception) {
+            isNavigating = false
+        }
     }
 
     private fun goToLogin() {

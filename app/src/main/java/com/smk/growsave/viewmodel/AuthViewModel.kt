@@ -69,13 +69,13 @@ class AuthViewModel(
 
     /**
      * Fungsi register yang dipicu dari RegisterActivity atau RegisterAdminActivity.
-     * Mendukung data opsional seperti role dan roomCode.
+     * Admin mengirim adminCode, user mengirim roomCode.
      */
     fun register(
         name: String,
         email: String,
         password: String,
-        role: String = "user",
+        adminCode: String? = null,
         roomCode: String? = null
     ) {
         _isLoading.value = true
@@ -85,7 +85,7 @@ class AuthViewModel(
                     name = name,
                     email = email,
                     password = password,
-                    role = role,
+                    adminCode = adminCode,
                     roomCode = roomCode
                 )
                 val response = repository.register(request)
