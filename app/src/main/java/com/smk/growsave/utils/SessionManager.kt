@@ -20,6 +20,7 @@ class SessionManager(context: Context) {
         private const val KEY_USER_NAME = "user_name"
         private const val KEY_USER_EMAIL = "user_email"
         private const val KEY_USER_ROLE = "user_role"
+        private const val KEY_USER_STATUS = "user_status"
 
         /**
          * LiveData global untuk mendeteksi sesi yang expired (401).
@@ -84,6 +85,21 @@ class SessionManager(context: Context) {
      */
     fun getUserEmail(): String? {
         return prefs.getString(KEY_USER_EMAIL, null)
+    }
+
+    /**
+     * Menyimpan status approval pengguna.
+     */
+    fun saveUserStatus(status: String) {
+        editor.putString(KEY_USER_STATUS, status)
+        editor.apply()
+    }
+
+    /**
+     * Mengambil status approval pengguna.
+     */
+    fun getUserStatus(): String? {
+        return prefs.getString(KEY_USER_STATUS, null)
     }
 
     /**

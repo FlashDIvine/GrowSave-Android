@@ -198,14 +198,20 @@ class UserHomeFragment : Fragment() {
             viewModel.fetchTransactions(token)
 
             // Ambil info detail room secara asinkron
-            lifecycleScope.launch {
+            viewLifecycleOwner.lifecycleScope.launch {
                 try {
                     val response = RetrofitClient.apiService.getRoom(token)
-                    if (response.success && response.data != null) {
-                        binding.tvRoomName.text = response.data.roomName
+                    val bindingObj = _binding
+                    if (bindingObj != null && isAdded && view != null) {
+                        if (response.success && response.data != null) {
+                            bindingObj.tvRoomName.text = response.data.roomName
+                        }
                     }
                 } catch (e: Exception) {
-                    binding.tvRoomName.text = "Error Room"
+                    val bindingObj = _binding
+                    if (bindingObj != null && isAdded && view != null) {
+                        bindingObj.tvRoomName.text = "Error Room"
+                    }
                 }
             }
         } else {

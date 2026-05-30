@@ -68,26 +68,32 @@ class AdminHomeFragment : Fragment() {
             billViewModel.fetchBills(token)
 
             // Ambil info detail room secara asinkron
-            lifecycleScope.launch {
+            viewLifecycleOwner.lifecycleScope.launch {
                 try {
                     val response = RetrofitClient.apiService.getRoom(token)
-                    if (response.success && response.data != null) {
-                        val data = response.data
-                        binding.tvRoomName.text = data.roomName
-                        binding.tvTotalMembers.text = "${data.totalMembers ?: 0} Warga"
-                        binding.tvRoomStatus.text = data.status.replaceFirstChar { 
-                            if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() 
-                        }
-                        if (data.status.equals("active", ignoreCase = true)) {
-                            binding.tvRoomStatus.setTextColor(android.graphics.Color.parseColor("#0D7B43"))
-                            binding.tvRoomStatus.setBackgroundResource(R.drawable.bg_badge_success)
-                        } else {
-                            binding.tvRoomStatus.setTextColor(android.graphics.Color.parseColor("#C81E1E"))
-                            binding.tvRoomStatus.setBackgroundResource(R.drawable.bg_badge_danger)
+                    val bindingObj = _binding
+                    if (bindingObj != null && isAdded && view != null) {
+                        if (response.success && response.data != null) {
+                            val data = response.data
+                            bindingObj.tvRoomName.text = data.roomName
+                            bindingObj.tvTotalMembers.text = "${data.totalMembers ?: 0} Warga"
+                            bindingObj.tvRoomStatus.text = data.status.replaceFirstChar { 
+                                if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() 
+                            }
+                            if (data.status.equals("active", ignoreCase = true)) {
+                                bindingObj.tvRoomStatus.setTextColor(android.graphics.Color.parseColor("#0D7B43"))
+                                bindingObj.tvRoomStatus.setBackgroundResource(R.drawable.bg_badge_success)
+                            } else {
+                                bindingObj.tvRoomStatus.setTextColor(android.graphics.Color.parseColor("#C81E1E"))
+                                bindingObj.tvRoomStatus.setBackgroundResource(R.drawable.bg_badge_danger)
+                            }
                         }
                     }
                 } catch (e: Exception) {
-                    binding.tvRoomName.text = "Error Room"
+                    val bindingObj = _binding
+                    if (bindingObj != null && isAdded && view != null) {
+                        bindingObj.tvRoomName.text = "Error Room"
+                    }
                 }
             }
         } else {
