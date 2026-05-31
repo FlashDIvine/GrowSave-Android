@@ -34,7 +34,6 @@
 | 🚪 Logout | ✅ | Hapus sesi dan redirect ke halaman login |
 | 💱 Format Rupiah | ✅ | Format mata uang Indonesia (Rp) otomatis |
 | 🎨 Material Design 3 | ✅ | UI modern dengan tema Material3 DayNight |
-| 🌗 Dark Mode Support | ✅ | Mendukung tema gelap (DayNight) |
 | 🔑 Role-Based User | ✅ | Mendukung role `admin` dan `user` |
 
 ---
